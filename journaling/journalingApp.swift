@@ -11,7 +11,8 @@ import SwiftUI
 struct journalingApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Splashscreen()
+                .preferredColorScheme(.dark)
         }
     }
 }
