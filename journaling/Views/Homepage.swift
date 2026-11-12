@@ -8,56 +8,63 @@ import SwiftUI
 
 struct Homepage: View {
     @State private var searchText = ""
+    @StateObject private var viewModel = JournalViewModel()
     var body: some View {
         NavigationStack {
-            
-            VStack(spacing: 18) {
-                
-                Image("Image2")
-                    .resizable()
-                    .frame(width: 151.39, height: 97.32)
-                
-                Text("Begin Your Journal")
-                    .font(AppFont.headingM)
-                    .foregroundStyle(Color("Journal titles"))
-                
-                Text("Craft your personal diary, tap the plus icon to begin")
-                    .font(AppFont.bodySupporting)
-                    .multilineTextAlignment(.center)
-                    .frame(width: 282)
-                
-            }
-            .navigationTitle("Journal")
-            
-            .toolbar{
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                  // filtter
-                 Menu {
-                        Button("Sort by Bookmark") {
-                            print("Bookmark")
-                        }
-                        Button("Sort by Entry Date") {
-                            print("Date")
-                        }
+            Group {
+                if viewModel.journals.isEmpty {
+                    
+                    VStack(spacing: 18) {
+                        
+                        Image("Image2")
+                            .resizable()
+                            .frame(width: 151.39, height: 97.32)
+                        
+                        Text("Begin Your Journal")
+                            .font(AppFont.headingM)
+                            .foregroundStyle(Color("Journal titles"))
+                        
+                        Text("Craft your personal diary, tap the plus icon to begin")
+                            .font(AppFont.bodySupporting)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 282)
                     }
-                    label: {
-                        Image(systemName: "line.3.horizontal.decrease")
-                            }
-                   // +
-                    Button {
-                        print("Plus tapped")
-                    }
-                    label: {
-                        Image(systemName: "plus")
+                }
+                else {
+                    List(viewModel.journals) { journal in
+                        Text(journal.title)
                     }
                 }
             }
-            .searchable(text: $searchText)
-              }
+                .navigationTitle("Journal")
+                
+                .toolbar {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        // filtter
+                        Menu {
+                            Button("Sort by Bookmark") {
+                                print("Bookmark")
+                            }
+                            Button("Sort by Entry Date") {
+                                print("Date")
+                            }
+                        }
+                        label: {
+                            Image(systemName: "line.3.horizontal.decrease")
+                        }
+                        // +
+                        Button {
+                            viewModel.addJournal(title: "Test", text: "Hello")
+                        }
+                        label: {
+                            Image(systemName: "plus")
+                        }
+                    }
+                }
+                .searchable(text: $searchText)
             }
-          }
-        
-    
+        }
+    }
 
 
 #Preview {

@@ -9,12 +9,12 @@ import SwiftUI
 import Combine
 
 class JournalViewModel: ObservableObject{
-    @Published var Journals: [Journal] = []
+    @Published var journals: [Journal] = []
     
     // دالة اضافة المذكرة
     func addJournal(title: String, text: String ) {
         let Journal = Journal(title: title, text: text, date: Date(), isBookmarked: false)
-        Journals.append(Journal)
+        journals.append(Journal)
     }
 }
 
