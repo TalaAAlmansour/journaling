@@ -7,7 +7,9 @@
 import SwiftUI
 
 struct Homepage: View {
+    // تعريف البحث
     @State private var searchText = ""
+    //تعريف المذكرة
     @StateObject private var viewModel = JournalViewModel()
     var body: some View {
         NavigationStack {
@@ -32,8 +34,12 @@ struct Homepage: View {
                 }
                 else {
                     List(viewModel.journals) { journal in
-                        Text(journal.title)
+                        JournalCard(journal: journal)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 22, bottom: 8, trailing: 22))
                     }
+                    .scrollContentBackground(.hidden)
                 }
             }
                 .navigationTitle("Journal")
