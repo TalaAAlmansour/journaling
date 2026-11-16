@@ -12,29 +12,62 @@ struct JournalEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var title = ""
     @State private var text = ""
+    @State private var showDiscardDialog = false
+    private var hasChanges: Bool {
+        viewModel.canSave(title: title, text: text)
+    }
+    enum Field {
+        case title, body
+    }
+    @FocusState private var focusedField: Field?
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
                 TextField("Title", text: $title)
                     .font(AppFont.headingL)
-            
-
+                    .focused($focusedField, equals: .title)
+                    .submitLabel(.next)
+                    .onSubmit {
+                        focusedField = .body
+                    }
+                    
                 Text(Date(), format: Date.FormatStyle(date: .numeric, time: .omitted))
                     .font(AppFont.captionS)
                     .foregroundStyle(Color("Entry dates"))
-
+                
                 TextField("Type your Journal...", text: $text, axis: .vertical)
                     .font(AppFont.bodyL)
-
+                    .focused($focusedField, equals: .body)
                 Spacer()
             }
             .padding(.horizontal, 22)
+            
+            .tint(Color.indigo)
+            .onAppear {
+                focusedField = .title
+            }
+            
             .toolbar {
+                // الاكس يسار
                 ToolbarItem(placement: .cancellationAction) {
                     Button(role: .close) {
-                        dismiss()
+                        if hasChanges {
+                            showDiscardDialog = true
+                        }
+                        else {
+                            dismiss()
+                        }
+                    }
+                    .confirmationDialog("Discard Changes", isPresented: $showDiscardDialog, titleVisibility: .hidden) {
+                        Button("Discard Changes", role: .destructive) {
+                            dismiss()
+                        }
+                        Button("Keep Editing") { }
+                    } message: {
+                        Text("Are you sure you want to discard changes on this journal?")
                     }
                 }
+                // الصح يمين
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
                         viewModel.addJournal(title: title, text: text)
@@ -45,7 +78,7 @@ struct JournalEditorView: View {
             }
         }
         .presentationDragIndicator(.visible)
-       
+        
     }
 }
 
