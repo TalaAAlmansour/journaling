@@ -22,25 +22,37 @@ struct JournalEditorView: View {
     @FocusState private var focusedField: Field?
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 8) {
-                TextField("Title", text: $title)
-                    .font(AppFont.headingL)
-                    .focused($focusedField, equals: .title)
-                    .submitLabel(.next)
-                    .onSubmit {
-                        focusedField = .body
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        TextField("Title", text: $title)
+                            .font(AppFont.headingL)
+                            .focused($focusedField, equals: .title)
+                            .submitLabel(.next)
+                            .onSubmit {
+                                focusedField = .body
+                            }
+                        
+                        Text(Date(), format: Date.FormatStyle(date: .numeric, time: .omitted))
+                            .font(AppFont.captionS)
+                            .foregroundStyle(Color("Entry dates"))
+                        
+                        TextField("Type your Journal...", text: $text, axis: .vertical)
+                            .font(AppFont.bodyL)
+                            .focused($focusedField, equals: .body)
+                        Color.clear
+                           .frame(height: 1)
+                            .id("bottomID")
                     }
-                    
-                Text(Date(), format: Date.FormatStyle(date: .numeric, time: .omitted))
-                    .font(AppFont.captionS)
-                    .foregroundStyle(Color("Entry dates"))
-                
-                TextField("Type your Journal...", text: $text, axis: .vertical)
-                    .font(AppFont.bodyL)
-                    .focused($focusedField, equals: .body)
-                Spacer()
+                    .padding(.horizontal, 22)
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: text) {
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            proxy.scrollTo("bottomID", anchor: .bottom)
+                        }
+                }
             }
-            .padding(.horizontal, 22)
             
             .tint(Color.indigo)
             .onAppear {
@@ -78,7 +90,7 @@ struct JournalEditorView: View {
             }
         }
         .presentationDragIndicator(.visible)
-        
+        .interactiveDismissDisabled(hasChanges)
     }
 }
 

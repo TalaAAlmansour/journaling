@@ -10,8 +10,22 @@ import Combine
 
 class JournalViewModel: ObservableObject{
     @Published var journals: [Journal] = []
-    
-    // دالة اضافة المذكرة
+    @Published var searchText: String = ""
+   // search logic
+    var filteredJournals: [Journal] {
+            let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !query.isEmpty else { return journals }
+            
+            return journals.filter { journal in
+                let matchTitle = journal.title.localizedCaseInsensitiveContains(query)
+                let matchText = journal.text.localizedCaseInsensitiveContains(query)
+                let formattedDate = journal.date.formatted(Date.FormatStyle(date: .numeric, time: .omitted))
+                let matchDate = formattedDate.localizedCaseInsensitiveContains(query)
+                
+                return matchTitle || matchText || matchDate
+            }
+        }
+    //  اضافة المذكرة
     func addJournal(title: String, text: String ) {
         guard canSave(title: title, text: text) else { return }
         let journal = Journal(title: title, text: text, date: Date(), isBookmarked: false)

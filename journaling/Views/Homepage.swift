@@ -7,8 +7,7 @@
 import SwiftUI
 
 struct Homepage: View {
-    // تعريف البحث
-    @State private var searchText = ""
+  
     //تعريف المذكرة
     @StateObject private var viewModel = JournalViewModel()
     @State private var isPresentingEditor = false
@@ -34,9 +33,11 @@ struct Homepage: View {
                             .frame(width: 282)
                     }
                 }
+                else if viewModel.filteredJournals.isEmpty {
+                    ContentUnavailableView.search(text: viewModel.searchText)
+                }
                 else {
-                    
-                    List(viewModel.journals) {
+                    List(viewModel.filteredJournals) {
                         journal in
                         JournalCard(journal: journal){
                             viewModel.toggleBookmark(journal)
@@ -45,6 +46,7 @@ struct Homepage: View {
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 8, leading: 22, bottom: 8, trailing: 22))
                     }
+                    .listStyle(.plain)
                     .scrollContentBackground(.hidden)
                 }
             }
@@ -73,8 +75,10 @@ struct Homepage: View {
                     }
                 }
             }
-            .searchable(text: $searchText)
-            .sheet(isPresented: $isPresentingEditor) {
+            //.searchable(text: $searchText)
+            .searchable(text: $viewModel.searchText)
+            .sheet(isPresented: $isPresentingEditor)
+            {
                 JournalEditorView(viewModel: viewModel)
             }
         }
