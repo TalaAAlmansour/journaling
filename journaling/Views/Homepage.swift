@@ -11,6 +11,8 @@ struct Homepage: View {
     @State private var searchText = ""
     //تعريف المذكرة
     @StateObject private var viewModel = JournalViewModel()
+    @State private var isPresentingEditor = false
+    
     var body: some View {
         NavigationStack {
             Group {
@@ -33,8 +35,12 @@ struct Homepage: View {
                     }
                 }
                 else {
-                    List(viewModel.journals) { journal in
-                        JournalCard(journal: journal)
+                    
+                    List(viewModel.journals) {
+                        journal in
+                        JournalCard(journal: journal){
+                            viewModel.toggleBookmark(journal)
+                        }
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 8, leading: 22, bottom: 8, trailing: 22))
@@ -42,35 +48,38 @@ struct Homepage: View {
                     .scrollContentBackground(.hidden)
                 }
             }
-                .navigationTitle("Journal")
-                
-                .toolbar {
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        // filtter
-                        Menu {
-                            Button("Sort by Bookmark") {
-                                print("Bookmark")
-                            }
-                            Button("Sort by Entry Date") {
-                                print("Date")
-                            }
+            .navigationTitle("Journal")
+            
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    // filtter
+                    Menu {
+                        Button("Sort by Bookmark") {
+                            print("Bookmark")
                         }
-                        label: {
-                            Image(systemName: "line.3.horizontal.decrease")
-                        }
-                        // +
-                        Button {
-                            viewModel.addJournal(title: "Test", text: "Hello")
-                        }
-                        label: {
-                            Image(systemName: "plus")
+                        Button("Sort by Entry Date") {
+                            print("Date")
                         }
                     }
+                    label: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
+                    // +
+                    Button {
+                        isPresentingEditor = true
+                    }
+                    label: {
+                        Image(systemName: "plus")
+                    }
                 }
-                .searchable(text: $searchText)
+            }
+            .searchable(text: $searchText)
+            .sheet(isPresented: $isPresentingEditor) {
+                JournalEditorView(viewModel: viewModel)
             }
         }
     }
+}
 
 
 #Preview {

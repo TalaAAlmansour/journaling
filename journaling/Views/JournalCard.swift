@@ -9,6 +9,7 @@ import SwiftUI
 
 struct JournalCard: View {
     let journal: Journal
+    let onBookmarkTap: () -> Void
     var body: some View {
         VStack(alignment: .leading, spacing: 7){
             HStack {
@@ -16,19 +17,25 @@ struct JournalCard: View {
                     .font(AppFont.titlecard)
                     .foregroundStyle(Color("Journal titles"))
                 Spacer()
-                Image(systemName: journal.isBookmarked ? "bookmark.fill" : "bookmark")
-                    .font(.system(size: 24))
+                Button {
+                    onBookmarkTap()
+                } label: {
+                    Image(systemName: journal.isBookmarked ? "bookmark.fill" : "bookmark")
+                        .font(.system(size: 24))
+                        .foregroundStyle(Color("Savebutton"))
+                }
+                        .buttonStyle(.borderless)
             }
-            Text("02/09/2024")
+            Text(journal.date, format: Date.FormatStyle(date: .numeric, time: .omitted))
                 .font(AppFont.captionS)
                 .foregroundStyle(Color("Entry dates"))
-            
-            Text(journal.text)
+                 
+                 Text(journal.text)
                 .font(AppFont.bodyM)
                 .lineLimit(5)
                 .padding(.top, 16)
-            
-        }
+                 
+                 }
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color("Journalcards"), in: RoundedRectangle(cornerRadius: 30))
@@ -37,6 +44,6 @@ struct JournalCard: View {
 
 
 #Preview {
-    JournalCard(journal: Journal(title: "My Birthday", text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio.", date: Date(), isBookmarked: true))
+    JournalCard(journal: Journal(title: "Birthday", text: "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio.", date: Date(), isBookmarked: false)) {}
         .preferredColorScheme(.dark)
 }
