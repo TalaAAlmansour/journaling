@@ -24,6 +24,7 @@ struct JournalEditorView: View {
     enum Field {
         case title, body
     }
+    // nwe or edit journal
     @FocusState private var focusedField: Field?
     init(viewModel: JournalViewModel, journal: Journal? = nil) {
         _viewModel = ObservedObject(wrappedValue: viewModel)
