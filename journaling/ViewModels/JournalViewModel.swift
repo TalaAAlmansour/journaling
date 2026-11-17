@@ -71,6 +71,10 @@ class JournalViewModel: ObservableObject{
             journals[index].text = text
         }
     }
+    // delet
+    func deleteJournal(_ journal: Journal) {
+        journals.removeAll { $0.id == journal.id }
+    }
     // حفظ المذكره اذا فاضيه او لا
     func canSave(title: String, text: String) -> Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||

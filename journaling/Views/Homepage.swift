@@ -11,7 +11,8 @@ struct Homepage: View {
     //تعريف المذكرة
     @StateObject private var viewModel = JournalViewModel()
     @State private var editorMode: EditorMode?
-    
+    @State private var journalToDelete: Journal?
+    @State private var showDeleteAlert = false
     var body: some View {
         NavigationStack {
             Group {
@@ -48,6 +49,14 @@ struct Homepage: View {
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 8, leading: 22, bottom: 8, trailing: 22))
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) {
+                                journalToDelete = journal
+                                showDeleteAlert = true
+                            } label: {
+                                Label("Delete", systemImage: "trash.fill")
+                            }
+                        }
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
@@ -96,6 +105,19 @@ struct Homepage: View {
                 case .edit(let journal):
                     JournalEditorView(viewModel: viewModel, journal: journal)
                 }
+            }
+            .alert("Delete Journal?", isPresented: $showDeleteAlert) {
+                Button("Cancel", role: .cancel) {
+                    journalToDelete = nil
+                }
+                Button("Delete", role: .destructive) {
+                    if let journal = journalToDelete {
+                        viewModel.deleteJournal(journal)
+                    }
+                    journalToDelete = nil
+                }
+            } message: {
+                Text("Are you sure you want to delete this journal?")
             }
         }
     }
