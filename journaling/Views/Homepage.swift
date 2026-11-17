@@ -10,7 +10,7 @@ struct Homepage: View {
     
     //تعريف المذكرة
     @StateObject private var viewModel = JournalViewModel()
-    @State private var isPresentingEditor = false
+    @State private var editorMode: EditorMode?
     
     var body: some View {
         NavigationStack {
@@ -41,6 +41,9 @@ struct Homepage: View {
                         journal in
                         JournalCard(journal: journal){
                             viewModel.toggleBookmark(journal)
+                        }
+                        .onTapGesture {
+                            editorMode = .edit(journal)
                         }
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
@@ -78,7 +81,7 @@ struct Homepage: View {
                     }
                     // +
                     Button {
-                        isPresentingEditor = true
+                        editorMode = .new
                     }
                     label: {
                         Image(systemName: "plus")
@@ -86,9 +89,13 @@ struct Homepage: View {
                 }
             }
             .searchable(text: $viewModel.searchText)
-            .sheet(isPresented: $isPresentingEditor)
-            {
-                JournalEditorView(viewModel: viewModel)
+            .sheet(item: $editorMode) { mode in
+                switch mode {
+                case .new:
+                    JournalEditorView(viewModel: viewModel)
+                case .edit(let journal):
+                    JournalEditorView(viewModel: viewModel, journal: journal)
+                }
             }
         }
     }

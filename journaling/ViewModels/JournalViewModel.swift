@@ -63,6 +63,14 @@ class JournalViewModel: ObservableObject{
             journals[index].isBookmarked.toggle()
         }
     }
+    // edite journal
+    func updateJournal(_ journal: Journal, title: String, text: String) {
+        guard canSave(title: title, text: text) else { return }
+        if let index = journals.firstIndex(where: { $0.id == journal.id }) {
+            journals[index].title = title
+            journals[index].text = text
+        }
+    }
     // حفظ المذكره اذا فاضيه او لا
     func canSave(title: String, text: String) -> Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||

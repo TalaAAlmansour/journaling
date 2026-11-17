@@ -9,17 +9,28 @@ import SwiftUI
 
 struct JournalEditorView: View {
     @ObservedObject var viewModel: JournalViewModel
+    let journal: Journal?
     @Environment(\.dismiss) private var dismiss
     @State private var title = ""
     @State private var text = ""
     @State private var showDiscardDialog = false
     private var hasChanges: Bool {
-        viewModel.canSave(title: title, text: text)
+        if let journal = journal {
+            return title != journal.title || text != journal.text
+        } else {
+            return viewModel.canSave(title: title, text: text)
+        }
     }
     enum Field {
         case title, body
     }
     @FocusState private var focusedField: Field?
+    init(viewModel: JournalViewModel, journal: Journal? = nil) {
+        _viewModel = ObservedObject(wrappedValue: viewModel)
+        self.journal = journal
+        _title = State(initialValue: journal?.title ?? "")
+        _text = State(initialValue: journal?.text ?? "")
+    }
     var body: some View {
         NavigationStack {
             ScrollViewReader { proxy in
@@ -33,7 +44,7 @@ struct JournalEditorView: View {
                                 focusedField = .body
                             }
                         
-                        Text(Date().journalFormatted)
+                        Text((journal?.date ?? Date()).journalFormatted)
                             .font(AppFont.captionS)
                             .foregroundStyle(Color("Entry dates"))
                         
@@ -41,16 +52,16 @@ struct JournalEditorView: View {
                             .font(AppFont.bodyL)
                             .focused($focusedField, equals: .body)
                         Color.clear
-                           .frame(height: 1)
+                            .frame(height: 1)
                             .id("bottomID")
                     }
                     .padding(.horizontal, 22)
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .onChange(of: text) {
-                        withAnimation(.easeOut(duration: 0.15)) {
-                            proxy.scrollTo("bottomID", anchor: .bottom)
-                        }
+                    withAnimation(.easeOut(duration: 0.15)) {
+                        proxy.scrollTo("bottomID", anchor: .bottom)
+                    }
                 }
             }
             .onAppear {
@@ -80,7 +91,11 @@ struct JournalEditorView: View {
                 // الصح يمين
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
-                        viewModel.addJournal(title: title, text: text)
+                        if let journal = journal {
+                            viewModel.updateJournal(journal, title: title, text: text)
+                        } else {
+                            viewModel.addJournal(title: title, text: text)
+                        }
                         dismiss()
                     }
                     .disabled(!viewModel.canSave(title: title, text: text))
