@@ -7,24 +7,50 @@
 
 import SwiftUI
 import Combine
-
+enum JournalFilter: String, CaseIterable {
+    case all = "All Journals"
+    case bookmarks = "Bookmarks"
+}
+enum JournalSort: String, CaseIterable {
+    case newest = "Newest Date"
+    case oldest = "Oldest Date"
+}
 class JournalViewModel: ObservableObject{
     @Published var journals: [Journal] = []
     @Published var searchText: String = ""
-   // search logic
+    @Published var selectedFilter: JournalFilter = .all
+    @Published var selectedSort: JournalSort = .newest
+    
+    // search, filter logic
     var filteredJournals: [Journal] {
-            let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard !query.isEmpty else { return journals }
-            
-            return journals.filter { journal in
+        var result = journals
+        
+        // bookmark filter
+        if selectedFilter == .bookmarks {
+            result = result.filter { $0.isBookmarked }
+        }
+        // search logic
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !query.isEmpty {
+            result = result.filter { journal in
                 let matchTitle = journal.title.localizedCaseInsensitiveContains(query)
                 let matchText = journal.text.localizedCaseInsensitiveContains(query)
-                let formattedDate = journal.date.formatted(Date.FormatStyle(date: .numeric, time: .omitted))
+                let formattedDate = journal.date.journalFormatted
                 let matchDate = formattedDate.localizedCaseInsensitiveContains(query)
                 
                 return matchTitle || matchText || matchDate
             }
         }
+        // فلتر التاريخ
+        switch selectedSort {
+        case .newest:
+            result.sort { $0.date > $1.date }
+        case .oldest:
+            result.sort { $0.date < $1.date }
+        }
+        
+        return result
+    }
     //  اضافة المذكرة
     func addJournal(title: String, text: String ) {
         guard canSave(title: title, text: text) else { return }
@@ -43,4 +69,3 @@ class JournalViewModel: ObservableObject{
         !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
-

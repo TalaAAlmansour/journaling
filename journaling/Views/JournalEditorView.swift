@@ -33,7 +33,7 @@ struct JournalEditorView: View {
                                 focusedField = .body
                             }
                         
-                        Text(Date(), format: Date.FormatStyle(date: .numeric, time: .omitted))
+                        Text(Date().journalFormatted)
                             .font(AppFont.captionS)
                             .foregroundStyle(Color("Entry dates"))
                         
@@ -53,8 +53,6 @@ struct JournalEditorView: View {
                         }
                 }
             }
-            
-            .tint(Color.indigo)
             .onAppear {
                 focusedField = .title
             }

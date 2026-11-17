@@ -26,7 +26,7 @@ struct JournalCard: View {
                 }
                         .buttonStyle(.borderless)
             }
-            Text(journal.date, format: Date.FormatStyle(date: .numeric, time: .omitted))
+            Text(journal.date.journalFormatted)
                 .font(AppFont.captionS)
                 .foregroundStyle(Color("Entry dates"))
                  

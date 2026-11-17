@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct Homepage: View {
-  
+    
     //تعريف المذكرة
     @StateObject private var viewModel = JournalViewModel()
     @State private var isPresentingEditor = false
@@ -56,15 +56,25 @@ struct Homepage: View {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     // filtter
                     Menu {
-                        Button("Sort by Bookmark") {
-                            print("Bookmark")
+                        Picker("Filter", selection: $viewModel.selectedFilter) {
+                            Label("All Journals", systemImage: "book.closed")
+                                .tag(JournalFilter.all)
+                            Label("Bookmarks", systemImage: "bookmark")
+                                .tag(JournalFilter.bookmarks)
                         }
-                        Button("Sort by Entry Date") {
-                            print("Date")
+                        Divider()
+                        
+                        Picker("Sort By", selection: $viewModel.selectedSort) {
+                            Label("Newest Date", systemImage: "arrow.down")
+                                .tag(JournalSort.newest)
+                            Label("Oldest Date", systemImage: "arrow.up")
+                                .tag(JournalSort.oldest)
                         }
-                    }
-                    label: {
-                        Image(systemName: "line.3.horizontal.decrease")
+                    } label: {
+                        Image(systemName: viewModel.selectedFilter == .bookmarks
+                              ? "line.3.horizontal.decrease.circle.fill"
+                              : "line.3.horizontal.decrease")
+                        .foregroundStyle(viewModel.selectedFilter == .bookmarks ? Color.indigo : .primary)
                     }
                     // +
                     Button {
@@ -75,7 +85,6 @@ struct Homepage: View {
                     }
                 }
             }
-            //.searchable(text: $searchText)
             .searchable(text: $viewModel.searchText)
             .sheet(isPresented: $isPresentingEditor)
             {
